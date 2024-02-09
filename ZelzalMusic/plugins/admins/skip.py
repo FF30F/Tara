@@ -23,13 +23,10 @@ from config import BANNED_USERS
 )
 @AdminRightsCheck
 async def skip(cli, message: Message, _, chat_id):
-    if " " in message.text and "تارا" not in message.text:
-        return
     if not len(message.command) < 2:
         loop = await get_loop(chat_id)
         if loop != 0:
             return await message.reply_text(_["admin_8"])
-        user_mention = message.from_user.mention if message.from_user else "المشـرف"
         state = message.text.split(None, 1)[1].strip()
         if state.isnumeric():
             state = int(state)
@@ -51,12 +48,12 @@ async def skip(cli, message: Message, _, chat_id):
                                 try:
                                     await message.reply_text(
                                         text=_["admin_6"].format(
-                                            user_mention,
+                                            message.from_user.mention,
                                             message.chat.title,
                                         ),
                                         reply_markup=close_markup(_),
                                     )
-                                    await Zelzaly.stop_stream(chat_id)
+                                    await Anony.stop_stream(chat_id)
                                 except:
                                     return
                                 break
@@ -78,28 +75,28 @@ async def skip(cli, message: Message, _, chat_id):
             if not check:
                 await message.reply_text(
                     text=_["admin_6"].format(
-                        user_mention, message.chat.title
+                        message.from_user.mention, message.chat.title
                     ),
                     reply_markup=close_markup(_),
                 )
                 try:
-                    return await Zelzaly.stop_stream(chat_id)
+                    return await Anony.stop_stream(chat_id)
                 except:
                     return
         except:
             try:
                 await message.reply_text(
                     text=_["admin_6"].format(
-                        user_mention, message.chat.title
+                        message.from_user.mention, message.chat.title
                     ),
                     reply_markup=close_markup(_),
                 )
-                return await Zelzaly.stop_stream(chat_id)
+                return await Anony.stop_stream(chat_id)
             except:
                 return
     queued = check[0]["file"]
     title = (check[0]["title"]).title()
-    user = check[0]["by"] if check[0] else "المشـرف"
+    user = check[0]["by"]
     streamtype = check[0]["streamtype"]
     videoid = check[0]["vidid"]
     status = True if str(streamtype) == "video" else None
@@ -119,7 +116,7 @@ async def skip(cli, message: Message, _, chat_id):
         except:
             image = None
         try:
-            await Zelzaly.skip_stream(chat_id, link, video=status, image=image)
+            await Anony.skip_stream(chat_id, link, video=status, image=image)
         except:
             return await message.reply_text(_["call_6"])
         button = stream_markup(_, chat_id)
@@ -152,7 +149,7 @@ async def skip(cli, message: Message, _, chat_id):
         except:
             image = None
         try:
-            await Zelzaly.skip_stream(chat_id, file_path, video=status, image=image)
+            await Anony.skip_stream(chat_id, file_path, video=status, image=image)
         except:
             return await mystic.edit_text(_["call_6"])
         button = stream_markup(_, chat_id)
@@ -172,7 +169,7 @@ async def skip(cli, message: Message, _, chat_id):
         await mystic.delete()
     elif "index_" in queued:
         try:
-            await Zelzaly.skip_stream(chat_id, videoid, video=status)
+            await Anony.skip_stream(chat_id, videoid, video=status)
         except:
             return await message.reply_text(_["call_6"])
         button = stream_markup(_, chat_id)
@@ -194,7 +191,7 @@ async def skip(cli, message: Message, _, chat_id):
             except:
                 image = None
         try:
-            await Zelzaly.skip_stream(chat_id, queued, video=status, image=image)
+            await Anony.skip_stream(chat_id, queued, video=status, image=image)
         except:
             return await message.reply_text(_["call_6"])
         if videoid == "telegram":
