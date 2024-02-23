@@ -36,4 +36,4 @@ async def chat_gpt(bot, message):
                 # Handle any other KeyError that might occur
                 await message.reply_text("حدث خطأ أثناء الوصول إلى الاستجابة..")
     except Exception as e:
-        await message.reply_text(f " خطأ {e} ")
+        await message.reply_text(f"**خطأ: {e} ")
