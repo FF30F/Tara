@@ -26,12 +26,11 @@ from ..formatters import int_to_alpha
 def AdminRightsCheck(mystic):
     async def wrapper(client, message):
         if await is_maintenance() is False:
-            if message.from_user:
-                if message.from_user.id and message.from_user.id not in SUDOERS:
-                    return await message.reply_text(
-                        text=f"{app.mention} ɪs ᴜɴᴅᴇʀ ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ, ᴠɪsɪᴛ <a href={SUPPORT_CHAT}>sᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ</a> ғᴏʀ ᴋɴᴏᴡɪɴɢ ᴛʜᴇ ʀᴇᴀsᴏɴ.",
-                        disable_web_page_preview=True,
-                    )
+            if message.from_user.id not in SUDOERS:
+                return await message.reply_text(
+                    text=f"{app.mention} ɪs ᴜɴᴅᴇʀ ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ, ᴠɪsɪᴛ <a href={SUPPORT_CHAT}>sᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ</a> ғᴏʀ ᴋɴᴏᴡɪɴɢ ᴛʜᴇ ʀᴇᴀsᴏɴ.",
+                    disable_web_page_preview=True,
+                )
 
         try:
             await message.delete()
@@ -43,6 +42,18 @@ def AdminRightsCheck(mystic):
             _ = get_string(language)
         except:
             _ = get_string("en")
+        if message.sender_chat:
+            upl = InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(
+                            text="ʜᴏᴡ ᴛᴏ ғɪx ?",
+                            callback_data="ModymousAdmin",
+                        ),
+                    ]
+                ]
+            )
+            return await message.reply_text(_["general_3"], reply_markup=upl)
         if message.command[0][0] == "c":
             chat_id = await get_cmode(message.chat.id)
             if chat_id is None:
@@ -57,52 +68,49 @@ def AdminRightsCheck(mystic):
             return await message.reply_text(_["general_5"])
         is_non_admin = await is_nonadmin_chat(message.chat.id)
         if not is_non_admin:
-            if message.from_user:
-                if message.from_user.id and message.from_user.id not in SUDOERS:
-                    admins = adminlist.get(message.chat.id)
-                    if not admins:
-                        return await message.reply_text(_["admin_13"])
-                    else:
-                        if message.from_user.id not in admins:
-                            if await is_skipmode(message.chat.id):
-                                upvote = await get_upvote_count(chat_id)
-                                text = f"""<b>ᴀᴅᴍɪɴ ʀɪɢʜᴛs ɴᴇᴇᴅᴇᴅ</b>
+            if message.from_user.id not in SUDOERS:
+                admins = adminlist.get(message.chat.id)
+                if not admins:
+                    return await message.reply_text(_["admin_13"])
+                else:
+                    if message.from_user.id not in admins:
+                        if await is_skipmode(message.chat.id):
+                            upvote = await get_upvote_count(chat_id)
+                            text = f"""<b>يجب ان تكون مشرف مع صلاحية المكالمات لتقوم بهذه المهمة</b>
 
-ʀᴇғʀᴇsʜ ᴀᴅᴍɪɴ ᴄᴀᴄʜᴇ ᴠɪᴀ : ريلود
+<b>اذا انت مشرف بالفعل ترسيت قائمه الادمنية</b>: /reload ."""
 
-» {upvote} ᴠᴏᴛᴇs ɴᴇᴇᴅᴇᴅ ғᴏʀ ᴘᴇʀғᴏʀᴍɪɴɢ ᴛʜɪs ᴀᴄᴛɪᴏɴ."""
-
-                                command = message.command[0]
-                                if command[0] == "c":
-                                    command = command[1:]
-                                if command == "speed":
-                                    return await message.reply_text(_["admin_14"])
-                                MODE = command.title()
-                                upl = InlineKeyboardMarkup(
-                                    [
-                                        [
-                                            InlineKeyboardButton(
-                                                text="تصويت",
-                                                callback_data=f"ADMIN  UpVote|{chat_id}_{MODE}",
-                                            ),
-                                        ]
-                                    ]
-                                )
-                                if chat_id not in confirmer:
-                                    confirmer[chat_id] = {}
-                                try:
-                                    vidid = db[chat_id][0]["vidid"]
-                                    file = db[chat_id][0]["file"]
-                                except:
-                                    return await message.reply_text(_["admin_14"])
-                                senn = await message.reply_text(text, reply_markup=upl)
-                                confirmer[chat_id][senn.id] = {
-                                    "vidid": vidid,
-                                    "file": file,
-                                }
-                                return
-                            else:
+                            command = message.command[0]
+                            if command[0] == "c":
+                                command = command[1:]
+                            if command == "speed":
                                 return await message.reply_text(_["admin_14"])
+                            MODE = command.title()
+                            upl = InlineKeyboardMarkup(
+                                [
+                                    [
+                                        InlineKeyboardButton(
+                                            text="تصويت",
+                                            callback_data=f"ADMIN  UpVote|{chat_id}_{MODE}",
+                                        ),
+                                    ]
+                                ]
+                            )
+                            if chat_id not in confirmer:
+                                confirmer[chat_id] = {}
+                            try:
+                                vidid = db[chat_id][0]["vidid"]
+                                file = db[chat_id][0]["file"]
+                            except:
+                                return await message.reply_text(_["admin_14"])
+                            senn = await message.reply_text(text, reply_markup=upl)
+                            confirmer[chat_id][senn.id] = {
+                                "vidid": vidid,
+                                "file": file,
+                            }
+                            return
+                        else:
+                            return await message.reply_text(_["admin_14"])
 
         return await mystic(client, message, _, chat_id)
 
@@ -112,12 +120,11 @@ def AdminRightsCheck(mystic):
 def AdminActual(mystic):
     async def wrapper(client, message):
         if await is_maintenance() is False:
-            if message.from_user:
-                if message.from_user.id and message.from_user.id not in SUDOERS:
-                    return await message.reply_text(
-                        text=f"{app.mention} ɪs ᴜɴᴅᴇʀ ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ, ᴠɪsɪᴛ <a href={SUPPORT_CHAT}>sᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ</a> ғᴏʀ ᴋɴᴏᴡɪɴɢ ᴛʜᴇ ʀᴇᴀsᴏɴ.",
-                        disable_web_page_preview=True,
-                    )
+            if message.from_user.id not in SUDOERS:
+                return await message.reply_text(
+                    text=f"{app.mention} ɪs ᴜɴᴅᴇʀ ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ, ᴠɪsɪᴛ <a href={SUPPORT_CHAT}>sᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ</a> ғᴏʀ ᴋɴᴏᴡɪɴɢ ᴛʜᴇ ʀᴇᴀsᴏɴ.",
+                    disable_web_page_preview=True,
+                )
 
         try:
             await message.delete()
@@ -129,7 +136,19 @@ def AdminActual(mystic):
             _ = get_string(language)
         except:
             _ = get_string("en")
-        if message.from_user.id and message.from_user.id not in SUDOERS:
+        if message.sender_chat:
+            upl = InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(
+                            text="ʜᴏᴡ ᴛᴏ ғɪx ?",
+                            callback_data="ModymousAdmin",
+                        ),
+                    ]
+                ]
+            )
+            return await message.reply_text(_["general_3"], reply_markup=upl)
+        if message.from_user.id not in SUDOERS:
             try:
                 member = (
                     await app.get_chat_member(message.chat.id, message.from_user.id)
