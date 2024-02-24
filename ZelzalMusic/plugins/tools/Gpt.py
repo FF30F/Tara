@@ -6,7 +6,7 @@ from ZelzalMusic import app
 from pyrogram.enums import ChatAction, ParseMode
 from pyrogram import filters
 
-@app.on_message(filters.command(["تارا","/gpt","ترتر"],""))
+@app.on_message(filters.command(["/gpt","ترتر"],""))
 async def chat_gpt(bot, message):
     try:
         start_time = time.time()
